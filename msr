@@ -1,0 +1,51 @@
+#!/opt/anaconda3/bin/python3
+import sys
+import validators
+import requests
+import semver
+
+# Part 1: Calling msr version should print a semver string to STDOUT
+ver = semver.VersionInfo.parse("1.0.0")
+def version():
+    print(ver)
+
+#Part 2: Validate a URL, and return with a non-zero exit code if the URL is invalid
+def register(testURL):
+    # print(testURL)
+    if not validators.url(testURL):
+        print('Invalid URL: ', testURL)
+        exit(1);
+    else:
+        # print('success')
+        file = open("url.txt", "a")
+        file.write(testURL + "\n")
+        file.close()
+
+#Part 3: Return a printed table of URLs in registry, along with the byte size of the GET request body
+def measure():
+    file = open("url.txt", "r")
+    for entry in file.readlines():
+        # print(entry)
+        entry = entry.replace("\n", "")
+        byteSize = requests.get(entry).content.__sizeof__()
+        print(entry + ", " + str(byteSize) + " bytes")
+
+#Part 4: Return a printed table of URLs in registry, along with the average page load time for the URLs of that domain.
+def race():
+    file = open("url.txt", "r")
+    for entry in file.readlines():
+        # print(entry)
+        entry = entry.replace("\n", "")
+        loadTime = requests.get(entry).elapsed.total_seconds()
+        print(entry + ", " + str(loadTime) + " seconds")
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'version':
+        version()
+    if sys.argv[1] == 'register':
+        register(sys.argv[2])
+    if sys.argv[1] == 'measure':
+        measure()
+    if sys.argv[1] == 'race':
+        race()
